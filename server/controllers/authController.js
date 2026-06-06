@@ -1,6 +1,8 @@
 ﻿const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const BlacklistedToken = require('../models/BlacklistedToken');
+
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
@@ -22,7 +24,8 @@ const registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role,    });
+      role,
+    });
 
     res.status(201).json({
       _id: user._id,
@@ -61,5 +64,45 @@ const loginUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+// @desc  Logout user
+// @route POST /api/auth/logout
+// @access Private
+const logoutUser = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
 
-module.exports = { registerUser, loginUser };
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(400).json({
+        message: 'Authorization token is required',
+      });
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+
+    if (!decoded || !decoded.exp) {
+      return res.status(400).json({
+        message: 'Invalid token',
+      });
+    }
+
+    await BlacklistedToken.create({
+      token,
+      expiresAt: new Date(decoded.exp * 1000),
+    });
+
+    return res.status(200).json({
+      message: 'Logged out successfully',
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+module.exports = { registerUser, loginUser, logoutUser };
