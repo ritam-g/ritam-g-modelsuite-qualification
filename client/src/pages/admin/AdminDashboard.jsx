@@ -8,49 +8,54 @@ import { fetchAllTasks } from '../../api/tasks';
 /* ── Search icon ── */
 const IconSearch = () => (
   <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="8.5" cy="8.5" r="5.5"/>
-    <path d="M17 17l-4-4"/>
+    <circle cx="8.5" cy="8.5" r="5.5" />
+    <path d="M17 17l-4-4" />
   </svg>
 );
 
 /* ── Plus icon ── */
 const IconPlus = () => (
   <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-    <path d="M10 4v12M4 10h12"/>
+    <path d="M10 4v12M4 10h12" />
   </svg>
 );
 
 const AdminDashboard = () => {
-  const [tasks, setTasks]           = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
-  const [editTask, setEditTask]     = useState(null);
-  const [search, setSearch]         = useState('');
+  const [editTask, setEditTask] = useState(null);
+  const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalTasks, setTotalTasks] = useState(0);
 
   const loadTasks = async () => {
     try {
-      const { data } = await fetchAllTasks();
-      setTasks(data);
+      const { data } = await fetchAllTasks(page, 10);
+      setTasks(data.tasks);
+      setTotalPages(data.totalPages);
+      setTotalTasks(data.totalTasks);
     } catch {
       alert('Failed to load tasks');
     }
   };
 
   // eslint-disable-next-line
-  useEffect(() => { loadTasks(); }, []);
+  useEffect(() => { loadTasks(); }, [page]);
 
   const stats = {
-    total:     tasks.length,
-    open:      tasks.filter((t) => t.status === 'Open').length,
+    total: totalTasks,
+    open: tasks.filter((t) => t.status === 'Open').length,
     submitted: tasks.filter((t) => t.status === 'Submitted').length,
-    approved:  tasks.filter((t) => t.status === 'Approved').length,
+    approved: tasks.filter((t) => t.status === 'Approved').length,
   };
 
   const statCards = [
-    { label: 'Total Tasks', value: stats.total,     colorClass: 'stat-card-default', valueColor: '#E5E2E1' },
-    { label: 'Open',        value: stats.open,      colorClass: 'stat-card-blue',    valueColor: '#60A5FA' },
-    { label: 'Submitted',   value: stats.submitted, colorClass: 'stat-card-info',    valueColor: '#60A5FA' },
-    { label: 'Approved',    value: stats.approved,  colorClass: 'stat-card-green',   valueColor: '#34D399' },
+    { label: 'Total Tasks', value: stats.total, colorClass: 'stat-card-default', valueColor: '#E5E2E1' },
+    { label: 'Open', value: stats.open, colorClass: 'stat-card-blue', valueColor: '#60A5FA' },
+    { label: 'Submitted', value: stats.submitted, colorClass: 'stat-card-info', valueColor: '#60A5FA' },
+    { label: 'Approved', value: stats.approved, colorClass: 'stat-card-green', valueColor: '#34D399' },
   ];
 
   /* Filter tasks */
@@ -156,7 +161,78 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          <TasksTable tasks={filteredTasks} onEdit={setEditTask} onRefresh={loadTasks} />
+          <TasksTable
+            tasks={filteredTasks}
+            onEdit={setEditTask}
+            onRefresh={loadTasks}
+          />
+
+          <div className="flex items-center justify-center gap-3 mt-8">
+
+            <button
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+              className="
+      px-5 py-2.5
+      rounded-xl
+      bg-white/5
+      border border-white/10
+      text-gray-300
+      font-medium
+      backdrop-blur-sm
+      transition-all duration-200
+      hover:bg-white/10
+      hover:border-white/20
+      hover:scale-105
+      disabled:opacity-40
+      disabled:cursor-not-allowed
+      disabled:hover:scale-100
+      cursor-pointer
+    "
+            >
+              ← Previous
+            </button>
+
+            <div
+              className="
+      px-5 py-2.5
+      rounded-xl
+      border border-cyan-500/20
+      bg-cyan-500/10
+      text-cyan-400
+      font-semibold
+      min-w-[130px]
+      text-center
+    "
+            >
+              {page} / {totalPages}
+            </div>
+
+            <button
+              disabled={page === totalPages}
+              onClick={() => setPage(page + 1)}
+              className="
+      px-5 py-2.5
+      rounded-xl
+      bg-gradient-to-r
+      from-cyan-500
+      to-blue-600
+      text-white
+      font-medium
+      transition-all duration-200
+      hover:scale-105
+      hover:shadow-lg
+      hover:shadow-cyan-500/30
+      disabled:opacity-40
+      disabled:cursor-not-allowed
+      disabled:hover:scale-100
+      cursor-pointer
+    "
+            >
+              Next →
+            </button>
+
+          </div>
         </div>
       </main>
 

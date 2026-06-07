@@ -6,12 +6,29 @@ const Task = require('../models/Task');
 // @access Admin
 const getAllTasks = async (req, res) => {
   try {
-    const tasks = await Task.find({})
-      .populate('assignedTo', 'name email')
-      .populate('createdBy', 'name')
-      .sort({ createdAt: -1 });
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(
+      50,
+      Math.max(1, parseInt(req.query.limit, 10) || 10)
+    );
+    const skip = (page - 1) * limit;
 
-    res.json(tasks);
+    const [tasks, totalTasks] = await Promise.all([
+      Task.find({})
+        .populate('assignedTo', 'name email')
+        .populate('createdBy', 'name')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Task.countDocuments(),
+    ]);
+
+    res.json({
+      tasks,
+      currentPage: page,
+      totalPages: Math.ceil(totalTasks / limit),
+      totalTasks,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
