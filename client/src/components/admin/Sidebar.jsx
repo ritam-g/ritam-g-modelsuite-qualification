@@ -52,25 +52,25 @@ const Sidebar = () => {
   const location  = useLocation();
 
   return (
-    <aside className="fixed inset-y-0 left-0 w-[240px] flex flex-col z-50"
+    <aside className="left-0 z-50 fixed inset-y-0 flex flex-col w-[240px]"
       style={{ background: '#0D0D0D' }}>
 
       {/* Brand */}
-      <div className="flex items-center justify-center px-5 py-6">
+      <div className="flex justify-center items-center px-5 py-6">
         <img src="/modelsuite-talents.png" alt="ModelSuite Talents" className="w-40 h-auto object-contain" />
       </div>
 
-      <div className="sidebar-divider mx-4" />
+      <div className="mx-4 sidebar-divider" />
 
       {/* Nav */}
-      <nav className="flex flex-col gap-0.5 flex-1 px-3 pt-5">
-        <p className="text-[9.5px] font-semibold uppercase tracking-[0.12em] px-2 mb-2"
+      <nav className="flex flex-col flex-1 gap-0.5 px-3 pt-5">
+        <p className="mb-2 px-2 font-semibold text-[9.5px] uppercase tracking-[0.12em]"
           style={{ color: 'rgba(255,255,255,0.25)', fontFamily: 'Inter, sans-serif' }}>
           Menu
         </p>
 
         {navItems.map(({ label, path, Icon }) => {
-          const isActive = location.pathname === path;
+          const isActive = location.pathname === path || location.pathname.startsWith(path + '/');
           return (
             <button key={path}
               onClick={() => navigate(path)}
@@ -84,14 +84,14 @@ const Sidebar = () => {
 
       {/* Footer */}
       <div className="px-3 pb-5">
-        <div className="sidebar-divider mb-4" />
-        <div className="flex items-center justify-between gap-2 px-1">
+        <div className="mb-4 sidebar-divider" />
+        <div className="flex justify-between items-center gap-2 px-1">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-full avatar-admin flex items-center justify-center text-[12px] font-bold text-white shrink-0">
+            <div className="flex justify-center items-center rounded-full w-8 h-8 font-bold text-[12px] text-white avatar-admin shrink-0">
               {user?.name?.[0]?.toUpperCase() ?? 'A'}
             </div>
             <div className="min-w-0">
-              <p className="text-[13px] font-semibold truncate max-w-[110px]"
+              <p className="max-w-[110px] font-semibold text-[13px] truncate"
                 style={{ color: '#E5E2E1', fontFamily: 'Inter, sans-serif' }}>
                 {user?.name}
               </p>

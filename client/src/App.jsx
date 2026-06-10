@@ -30,7 +30,7 @@ function App() {
               </PrivateRoute>
             }
           />
-          
+
           <Route
             path="/admin/tasks"
             element={
@@ -55,7 +55,23 @@ function App() {
               </PrivateRoute>
             }
           />
-          
+          <Route
+            path="/talent/tasks"
+            element={
+              <PrivateRoute role="Talent">
+                <TalentDashboard />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/admin/talents"
+            element={
+              <PrivateRoute role="Admin">
+                <AdminDashboard />
+              </PrivateRoute>
+            }
+          />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
