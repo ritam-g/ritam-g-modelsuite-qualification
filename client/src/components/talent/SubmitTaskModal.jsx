@@ -1,9 +1,10 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { submitTask } from '../../api/submissions';
 
 const SubmitTaskModal = ({ task, onClose, onSubmitted }) => {
-  const [file, setFile]   = useState(null);
-  const [notes, setNotes] = useState('');
+  const [file, setFile]     = useState(null);
+  const [notes, setNotes]   = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -11,6 +12,7 @@ const SubmitTaskModal = ({ task, onClose, onSubmitted }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const formData = new FormData();
     if (file) formData.append('file', file);
     formData.append('notes', notes);
@@ -20,20 +22,22 @@ const SubmitTaskModal = ({ task, onClose, onSubmitted }) => {
       onClose();
     } catch (err) {
       alert(err.response?.data?.message || 'Submission failed');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black/65 backdrop-blur-sm flex items-center justify-center z-[200] p-6"
-      onClick={onClose}>
+      onClick={loading ? undefined : onClose}>
       <div className="bg-bg-card border border-border rounded-xl w-full max-w-lg shadow-[0_32px_80px_rgba(0,0,0,0.6)] animate-modal-in"
         onClick={(e) => e.stopPropagation()}>
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-border">
           <h2 className="text-[17px] font-semibold text-text-primary">Submit Task</h2>
-          <button onClick={onClose}
-            className="bg-transparent border-none text-text-muted text-base cursor-pointer px-2 py-1 rounded-md hover:bg-bg-hover hover:text-text-primary transition-all">✕</button>
+          <button onClick={onClose} disabled={loading}
+            className="bg-transparent border-none text-text-muted text-base cursor-pointer px-2 py-1 rounded-md hover:bg-bg-hover hover:text-text-primary transition-all disabled:opacity-40 disabled:cursor-not-allowed">✕</button>
         </div>
 
         {/* Task info strip */}
@@ -78,13 +82,13 @@ const SubmitTaskModal = ({ task, onClose, onSubmitted }) => {
 
           
           <div className="flex justify-end gap-2.5 pt-1 border-t border-border mt-1">
-            <button type="button" onClick={onClose}
-              className="px-5 py-2.5 bg-bg-input text-text-muted border border-border rounded-lg text-sm font-medium cursor-pointer hover:bg-bg-hover hover:text-text-primary transition-all font-sans">
+            <button type="button" onClick={onClose} disabled={loading}
+              className="px-5 py-2.5 bg-bg-input text-text-muted border border-border rounded-lg text-sm font-medium cursor-pointer hover:bg-bg-hover hover:text-text-primary transition-all font-sans disabled:opacity-40 disabled:cursor-not-allowed">
               Cancel
             </button>
-            <button type="submit"
-              className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white cursor-pointer btn-gradient border-none font-sans">
-              Submit Task
+            <button type="submit" disabled={loading}
+              className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white btn-gradient border-none font-sans disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer">
+              {loading ? 'Submitting…' : 'Submit Task'}
             </button>
           </div>
         </form>
