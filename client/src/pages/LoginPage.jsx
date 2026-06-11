@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import API from '../api/axios';
+import { loginUser } from '../api/auth';
 
 const Logo = () => (
   <img src="/modelsuite-talents.png" alt="ModelSuite Talents Logo" className="w-80 h-auto object-contain mx-auto block hover:scale-105 transition-transform duration-300" />
@@ -21,7 +21,7 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { data } = await API.post('/auth/login', { email, password });
+      const { data } = await loginUser({ email, password });
       login(data);
       data.role === 'Admin' ? navigate('/admin/dashboard') : navigate('/talent/dashboard');
     } catch (err) {
