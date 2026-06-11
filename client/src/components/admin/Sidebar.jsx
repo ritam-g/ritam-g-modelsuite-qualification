@@ -100,7 +100,7 @@ const Sidebar = () => {
           </div>
 
           <button
-            onClick={() => { logout(); navigate('/login'); }}
+            onClick={async () => { await logout(); navigate('/login'); }}
             title="Sign out"
             className="logout-btn">
             <IconLogout />
